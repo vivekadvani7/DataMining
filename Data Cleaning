@@ -1,0 +1,55 @@
+##**Data Cleaning****************************************************************##
+df <- read.csv('listings_summary.csv')
+
+#*Drop columns with texts
+df1 <- df[, -c(2:25,28,30,31,35,38:40,42:48,60,62,63,70:74,76,78,79,81:89,91,93:96)]
+names(df1)
+nrow(df1)
+ncol(df1)
+
+#*Convert blank cells to NA
+df1[df1 == ""] <- NA
+summary(df1)
+
+#*Fill zero into NA values in price-variable columns
+df1$security_deposit <- as.character(df1$security_deposit)
+df1$security_deposit[is.na(df1$security_deposit)] <- "$0.00"
+df1$cleaning_fee[is.na(df1$cleaning_fee)] <- "$0.00"
+df1$extra_people[is.na(df1$extra_people)] <- "$0.00"
+
+#*Check missing data
+colSums(is.na(df1))
+
+#*Drop columns with too many missing data & NA
+library(DataCombine)
+df2 <- df1[ ,-c(2:7,9,31,36)]
+summary(df2)
+
+#*Remove rows with NA's in some variables
+df2 <- DropNA(df2, Var = "bathrooms")
+df2 <- DropNA(df2, Var = "bedrooms")
+df2 <- DropNA(df2, Var = "beds")
+
+#*Double check if there are still missing data
+colSums(is.na(df2))
+sapply(df2,class)
+ncol(df2)
+summary(df2)
+
+
+#*Explore data by plotting bar charts of some categorical variables
+library(ggplot2)
+g<-ggplot(df2, aes(x=property_type)) + geom_bar(color='orange') 
+g + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+#here most of the instances are apartment, so we drop this column
+
+ggplot(df, aes(x=bed_type)) + geom_bar(color='blue') 
+#here most of the instances are real bed, so we drop this column
+
+df3 <- df2[, -c(2,7,13)]
+names(df3)
+
+df3$price <- as.numeric(gsub('[$,]', '', df3$price))
+df3$security_deposit <- as.numeric(gsub('[$,]', '', df3$security_deposit))
+df3$cleaning_fee <- as.numeric(gsub('[$,]', '', df3$cleaning_fee))
+df3$extra_people <- as.numeric(gsub('[$,]', '', df3$extra_people))
