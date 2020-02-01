@@ -1,0 +1,155 @@
+##**Data Modelling******************************************************************##
+
+Airbnb <- df3[,-c(1,2,3,4,5,6,11,18)]
+Airbnb1 <- dummy.data.frame(Airbnb, sep = ".")
+set.seed(1)
+train.rows<-sample(rownames(Airbnb1),dim(Airbnb1)[1]*0.6)
+valid.rows <- sample(setdiff(rownames(Airbnb1), train.rows), 
+                     dim(Airbnb1)[1]*0.2)
+test.rows <- setdiff(rownames(Airbnb1), union(train.rows, valid.rows))
+train.data <- Airbnb1[train.rows, ]
+valid.data <- Airbnb1[valid.rows, ]
+test.data <- Airbnb1[test.rows, ]
+dim(train.data)
+dim(valid.data)
+dim(test.data)
+
+library(forecast)
+REG.TRAIN <- lm(price ~. ,data = train.data)
+summary(REG.TRAIN)
+
+pred <- predict(REG.TRAIN, newdata = valid.data)
+accuracy(pred,valid.data$price)
+
+
+REG.TRAIN1 <- lm(price ~ accommodates + 
+                   bathrooms + 
+                   bedrooms + 
+                   beds + 
+                   security_deposit +
+                   cleaning_fee + 
+                   guests_included +
+                   extra_people +
+                   availability_365 +
+                   number_of_reviews+
+                   instant_bookable.f+   
+                   Less_than_6_minimum_nights +cancellation_policy.super_strict_30 +
+                   CTD, data = train.data)
+summary(REG.TRAIN1)
+
+pred1 <- predict(REG.TRAIN1, newdata = valid.data)
+accuracy(pred1,valid.data$price)
+
+
+#*Exhaustive search
+install.packages("leaps")
+library(leaps)
+search <- regsubsets(price ~ ., data = Airbnb1, nbest = 1, nvmax = dim(Airbnb1)[2],
+                     method = "exhaustive")
+sum <- summary(search)
+sum$which
+sum$rsq
+sum$adjr2
+sum$cp
+
+model1<-lm(price ~ accommodates + 
+             bedrooms + 
+             beds + 
+             cleaning_fee + 
+             guests_included +
+             extra_people +
+             minimum_nights+
+             availability_365 +
+             number_of_reviews+
+             instant_bookable.t+ 
+             cancellation_policy.flexible+ 
+             cancellation_policy.moderate+
+             cancellation_policy.strict_14_with_grace_period+  
+             Less_than_6_minimum_nights +
+             cancellation_policy.super_strict_60 +
+             Family_kid_friendly+  
+             CTD+
+             Street_parking+
+             Elevator,
+           data = train.data)
+summary(model1)
+
+model2<-lm(price ~ accommodates + 
+             bedrooms + 
+             beds + 
+             cleaning_fee + 
+             guests_included +
+             extra_people +minimum_nights+
+             availability_365 +
+             number_of_reviews+
+             instant_bookable.f+ 
+             cancellation_policy.flexible+ 
+             cancellation_policy.moderate+
+             cancellation_policy.strict_14_with_grace_period+  
+             Less_than_6_minimum_nights +
+             cancellation_policy.super_strict_30 +
+             Family_kid_friendly+  
+             CTD+
+             TV +
+             Street_parking+
+             Elevator,
+           data = train.data)
+summary(model2)
+
+model3<-lm(price ~ accommodates + 
+             bedrooms + 
+             beds + 
+             cleaning_fee + 
+             guests_included +
+             extra_people +
+             minimum_nights+
+             availability_365 +
+             number_of_reviews+
+             instant_bookable.f+ 
+             cancellation_policy.flexible+ 
+             cancellation_policy.moderate+
+             cancellation_policy.strict_14_with_grace_period+  
+             Less_than_6_minimum_nights +
+             cancellation_policy.super_strict_30 +
+             Family_kid_friendly+ 
+             CTD+
+             TV +
+             Street_parking+
+             Refrigerator+
+             Elevator,
+           data = train.data)
+summary(model3)
+
+##Adjusted r square of model 2 is better
+
+library(forecast)
+pred1 <- predict(model1, newdata = valid.data)
+accuracy(pred1,valid.data$price)
+pred2 <- predict(model2, newdata = valid.data)
+accuracy(pred2,valid.data$price)
+pred3 <- predict(model3, newdata = valid.data)
+accuracy(pred3,valid.data$price)
+
+#*Testing model 2 on test data
+pred4 <- predict(model2, newdata = test.data)
+accuracy(pred4,test.data$price)
+
+
+##**Regression tree
+library(rpart)
+library(rpart.plot)
+library(caret)
+airbnb.tree <- rpart(price ~. , data = train.data)
+
+length(airbnb.tree$frame$var[airbnb.tree$frame$var == "<leaf>"])
+
+#*Plotting tree
+prp(airbnb.tree, type = 1, extra = 1, under = TRUE, split.font = 1, varlen = -10, 
+    box.col=ifelse(airbnb.tree$frame$var == "<leaf>", 'lightblue', 'lightgreen')) 
+
+
+pred4 <- predict(airbnb.tree, newdata = valid.data)
+accuracy(pred4,valid.data$price)
+
+pred4 <- predict(airbnb.tree, newdata = test.data)
+accuracy(pred4,test.data$price)
