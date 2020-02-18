@@ -1,4 +1,4 @@
-# Investigating Airbnb activity in Berlin, Germany(Kaggle) in R
+# Investigating Airbnb activity in Berlin,Germany(Kaggle) in R
 ## Summary 
 We used machine learning algorithm such as Regression Tree coupled with various new features to predict the price for each Berlin neighborhood. Feature Engineering is the most impportant part of this project, the new extracted features helped in improving the performace of machine learning algorithms.We worked as a team of 5 grad students(Vivek Advani, Samrita Ghosh, Ruying Situ, Aniruddhsinh Vashi, Nishit Patel) on this projects. 
 ## Steps Followed: 
