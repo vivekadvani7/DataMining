@@ -3,7 +3,7 @@
 We used machine learning algorithm such as Regression Tree coupled with various new features to predict the price for each Berlin neighborhood. Feature Engineering is the most impportant part of this project, the new extracted features helped in improving the performace of machine learning algorithms.We worked as a team of 5 grad students(Vivek Advani, Samrita Ghosh, Ruying Situ, Aniruddhsinh Vashi, Nishit Patel) on this projects. 
 ## Steps Followed: 
 Data Cleaning, Feature Engineering, Data Visualization, Data Modelling and Conclusion based on evaluated results.
-## DATA SOURCE: 
+## Data Source: 
 "https://www.kaggle.com/brittabettendorf/berlin-airbnb-data" Kaggle. Listings summary dataset having 22552 observations and 96 Variables. We removed 63 variables as they were irrelevant for our analysis.
 ## Feature Engineering
 1] As minimum_nights & maximum_nights had outliers, we converted these columns to Less than 6 minimum nights and less than 2000 maximum nights.
